@@ -115,35 +115,46 @@ onValue(child(dbref, "Team 1/Race 1/prerace"), (snapshot) => {
 
 //timer
 onValue(child(dbref, "Team 1/Race 1/interface"), (snapshot) => {
-    const seconds = snapshot.val().seconds;
     const stint_end_time = snapshot.val().stint_end_time;
     const corrected_stint_end_time = new Date(stint_end_time);
     document.getElementById("last_pit_time").innerText = corrected_stint_end_time;
-    const interval = setInterval(() => {
+
+    get(child(dbref, "Team 1/Race 1/backend/stint_length")).then((snapshot) => {
+        if (snapshot.exists()) {
+            var stintLengthMinutes = snapshot.val();
+             const seconds = stintLengthMinutes * 60;
+        const interval = setInterval(() => {
         const timeLeft = (seconds * 1000) - (Date.now() - stint_end_time);
-        if (timeLeft < 0) {
-            clearInterval(interval);
-            console.log("0.0 left");
-            document.getElementById("time_to_next_pit").innerText = "0";
+                if (timeLeft < 0) {
+                    clearInterval(interval);
+                    console.log("0.0 left");
+                    document.getElementById("time_to_next_pit").innerText = "0";
+                } else {
+                    const secondsToCountFrom = timeLeft / 1000;
+                    const minutesLeftDisplay = Math.floor(secondsToCountFrom / 60);
+
+
+
+                    const finalTimeDisplay = minutesLeftDisplay + " Minutes";
+
+
+                    document.getElementById("time_to_next_pit").innerText = finalTimeDisplay;
+                }
+
+                }, 1000)
+
         } else {
-            const secondsToCountFrom = timeLeft / 1000;
-            const minutesLeftDisplay = Math.floor(secondsToCountFrom / 60);
-
-
-
-            const finalTimeDisplay = minutesLeftDisplay + " Minutes";
-
-
-
-            document.getElementById("time_to_next_pit").innerText = finalTimeDisplay;
+            console.log("found nadda");
         }
-
-    }, 1000)
-
+    }).catch((error) => {
+        console.log(error);
+    });
 });
 
+onValue(child(dbref, "Team 1/Race 1/interface"), (snapshot) => {
+    document.getElementById("pit_reason").innerText = snapshot.val().stint_end_reason;
 
-
+});
 
 //the buttons
 
@@ -158,7 +169,54 @@ document.getElementById("pitButton").onclick = function () {
         stint_end_reason: document.getElementById("pitReasons").value
 
       })
+
+    set(child(dbref, "Team 1/Race 1/pitHistory/" + Date.now()), {
+        stint_end_time: Date.now(),
+        seconds: 500,
+        stint_end_reason: document.getElementById("pitReasons").value
+
+    })
+    console.log("klikc");
+    window.location.reload();
     };
+
+
+
+
+//the pit history
+
+var pitHistoryTable = document.getElementById("pitHistoryTable");
+var j = 1;
+
+onValue(child(dbref, "Team 1/Race 1/pitHistory/"), (snapshot) => {
+   snapshot.forEach((childSnapshot) => {
+       console.log(childSnapshot.key);
+
+       var row = pitHistoryTable.insertRow(j);
+       var x = row.insertCell(0);
+       var x1 = row.insertCell(1);
+
+       get(child(dbref, "Team 1/Race 1/pitHistory/" + childSnapshot.key + "/stint_end_reason")).then((snapshot) =>{
+           if(snapshot.exists()) {
+               console.log(snapshot.val() + "reported");
+               x.innerHTML = snapshot.val();
+           }
+       })
+
+       get(child(dbref, "Team 1/Race 1/pitHistory/" + childSnapshot.key + "/stint_end_time")).then((snapshot) =>{
+           if(snapshot.exists()) {
+               console.log(snapshot.val() + "reported");
+               const corrected_stint_end_time_pitHistory = new Date(snapshot.val());
+               x1.innerHTML = corrected_stint_end_time_pitHistory;
+
+
+           }
+       })
+
+   })
+
+
+});
 
 </script>
 
@@ -166,7 +224,6 @@ document.getElementById("pitButton").onclick = function () {
 
 
     <h2>to update</h2>
-
 <button id="preraceButton" class="float-right submit-button" >Prerace</button>
 <button id="pitButton" class="float-right submit-button" >Pit</button>
 
@@ -177,7 +234,7 @@ document.getElementById("pitButton").onclick = function () {
     <option value="other">Other</option>
 </select>
 
-<h2>Event</h2>
+<h2>Event [is live]</h2>
                 <table id="event" width="100%">
                     <tr  style="background: #cccccc;">
                       <th id="fieldTest">Kentän nimi</th>
@@ -198,28 +255,15 @@ document.getElementById("pitButton").onclick = function () {
 
                 </table>
 
-<h2>Car data</h2>
-                <table id="cardata" width="100%">
+<h2>Pitting history [is live]</h2>
+                <table id="pitHistoryTable" width="100%">
                     <tr  style="background: #cccccc;">
-                      <th id="fieldTest">Kentän nimi</th>
-                      <th>Kentän sisältö</th>
+                      <th>Time</th>
+                      <th>Reason</th>
                     </tr>
-                    <tr>
-                        <th>ABS</th>
-                        <th><p id="ABS"></p></th>
-                    </tr>
-                    <tr>
-                        <th>Position</th>
-                        <th><p id="Position"></p></th>
-                    </tr>
-                    <tr>
-                        <th>RPM</th>
-                        <th><p id="RPM"></p></th>
-                    </tr>
-
                 </table>
 
-<h2>Backend</h2>
+<h2>Backend [is live]</h2>
                 <table id="backend" width="100%">
                     <tr  style="background: #cccccc;">
                       <th id="fieldTest">Kentän nimi</th>
@@ -236,7 +280,7 @@ document.getElementById("pitButton").onclick = function () {
                 </table>
 
 
-<h2>Interface</h2>
+<h2>Interface [is live] </h2>
                 <table id="interface" width="100%">
                     <tr  style="background: #cccccc;">
                       <th id="fieldTest">Kentän nimi</th>
@@ -258,7 +302,31 @@ document.getElementById("pitButton").onclick = function () {
                 </table>
 
 
-<h2>Prerace</h2>
+
+
+
+
+<h2>Car data [not functional yet]</h2>
+                <table id="cardata" width="100%">
+                    <tr  style="background: #cccccc;">
+                      <th id="fieldTest">Kentän nimi</th>
+                      <th>Kentän sisältö</th>
+                    </tr>
+                    <tr>
+                        <th>ABS</th>
+                        <th><p id="ABS"></p></th>
+                    </tr>
+                    <tr>
+                        <th>Position</th>
+                        <th><p id="Position"></p></th>
+                    </tr>
+                    <tr>
+                        <th>RPM</th>
+                        <th><p id="RPM"></p></th>
+                    </tr>
+
+                </table>
+<h2>Prerace [not live]</h2>
                 <table id="prerace" width="100%">
                     <tr  style="background: #cccccc;">
                       <th id="fieldTest">Kentän nimi</th>
