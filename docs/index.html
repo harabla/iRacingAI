@@ -96,6 +96,23 @@ onValue(child(dbref, "Team 1/Race 1/interface"), (snapshot) => {
 }, {
 });
 
+// prerace
+
+
+onValue(child(dbref, "Team 1/Race 1/prerace"), (snapshot) => {
+  snapshot.forEach((childSnapshot) => {
+    var childKey = childSnapshot.key;
+    var childData = childSnapshot.val();
+    console.log(childKey);
+    console.log(childData);
+    var childKeyFixed = childKey.toString;
+
+    document.getElementById(childKey).innerText = childData;
+
+  });
+}, {
+});
+
 
 </script>
 
@@ -148,6 +165,35 @@ onValue(child(dbref, "Team 1/Race 1/interface"), (snapshot) => {
                     <tr>
                         <th>Stint End Reason</th>
                         <th><p id="stint_end_reason"></p></th>
+                    </tr>
+                </table>
+
+
+<h2>Prerace</h2>
+                <table id="prerace" width="100%">
+                    <tr  style="background: #cccccc;">
+                      <th id="fieldTest">Kentän nimi</th>
+                      <th>Kentän sisältö</th>
+                    </tr>
+                    <tr>
+                        <th>Avg. Laptime</th>
+                        <th><p id="avg_lap_time"></p></th>
+                    </tr>
+                    <tr>
+                        <th>Fuel per lap</th>
+                        <th><p id="fuel_per_lap"></p></th>
+                    </tr>
+                    <tr>
+                        <th>Fuel tank size</th>
+                        <th><p id="fuel_tank_size"></p></th>
+                    </tr>
+                    <tr>
+                        <th>Pit Stop Lost Time</th>
+                        <th><p id="pit_stop_lost_time"></p></th>
+                    </tr>
+                    <tr>
+                        <th>Race Duration</th>
+                        <th><p id="race_duration"></p></th>
                     </tr>
                 </table>
 </body>
