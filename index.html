@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>RATT Editori</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyB5-lkeChuEgkJ0UXYbf6WUP33fIBNYVdA",
+    authDomain: "iracingai.firebaseapp.com",
+    databaseURL: "https://iracingai-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "iracingai",
+    storageBucket: "iracingai.appspot.com",
+    messagingSenderId: "536602400542",
+    appId: "1:536602400542:web:4b9b883f22e2d10e209b0f",
+    measurementId: "G-0JDJ6BRKJE"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+import {getDatabase, get, ref, child, set, update, onValue} from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+
+const db = getDatabase();
+
+
+
+const dbref = ref(db);
+
+
+
+
+
+
+// Cardata
+
+var cardata = document.getElementById("car_data");
+var j = 1;
+
+onValue(child(dbref, "Team 1/Race 1/cardata"), (snapshot) => {
+  snapshot.forEach((childSnapshot) => {
+    var childKey = childSnapshot.key;
+    var childData = childSnapshot.val();
+    console.log(childKey);
+    console.log(childData);
+    console.log(j);
+    var childKeyFixed = childKey.toString;
+
+    document.getElementById(childKey).innerText = childData;
+
+
+
+
+  });
+}, {
+});
+
+
+
+</script>
+
+<body>
+
+<h2>Car data</h2>
+                <table id="car_data" width="100%">
+                    <tr  style="background: #cccccc;">
+                      <th id="fieldTest">Kentän nimi</th>
+                      <th>Kentän sisältö</th>
+                    </tr>
+                    <tr>
+                        <th>ABS</th>
+                        <th><p id="ABS"></p></th>
+                    </tr>
+                    <tr>
+                        <th>Position</th>
+                        <th><p id="Position"></p></th>
+                    </tr>
+                    <tr>
+                        <th>RPM</th>
+                        <th><p id="RPM"></p></th>
+                    </tr>
+
+                </table>
+
+
+
+
+</body>
+
+</html>
